@@ -5,7 +5,7 @@ let yeniDonguyeBasla=document.getElementById('yeniDonguyeBasla');
 let zamanCizelgesi=document.getElementById('zamanCizelgesi');
 let ekstralar=document.getElementById('ekstralar');
 
-let kimSeokjinBolum1 = [
+let kimSeokjinBolum1Metinleri = [
     {
         id: "kimSeokjinUcak1",
         karakter: "Pilot",
@@ -414,60 +414,103 @@ let diyalogSirasi = 0;
 
 donguyeDevamEt.addEventListener('click', function() {
     let anaIcerik = document.getElementById('kimSeokjinAnaSayfa');
-    
+    let sabitArkaPlan = document.getElementById('background');
+
+    if (sabitArkaPlan) {
+        sabitArkaPlan.style.display = "none"; 
+    }
+
+    anaSayfa.style.backgroundColor = "black";
+
     anaIcerik.innerHTML = `
         <div id="diyalog-sistemi">
             <h2 id="konusanKarakter"></h2>
             <p id="kimSeokjinIkonikSoz">Hikaye başlıyor...</p>
-            <div>
-                <img id="arkaPlan" src="" style="display:none;">
-            </div>
-            <button id="devam-btn">Devam Et (Tıkla)</button>
+            <button id="devamEtButonu">Devam Et (Tıkla)</button>
         </div>
     `;
 
-    document.getElementById('devam-btn').addEventListener('click', diyalogIlerlet);
-
-    diyalogIlerlet();
+    document.getElementById('devamEtButonu').addEventListener('click', kimSeokjinBolum1);
+    kimSeokjinBolum1();
 });
 
 yeniDonguyeBasla.addEventListener('click', function() {
     let anaIcerik = document.getElementById('kimSeokjinAnaSayfa');
-    
+    let sabitArkaPlan = document.getElementById('background');
+
+    if (sabitArkaPlan) {
+        sabitArkaPlan.style.display = "none"; 
+    }
+
+    anaSayfa.style.backgroundColor = "black";
+
     anaIcerik.innerHTML = `
-    <div id="diyalog-sistemi">
+        <div id="diyalog-sistemi">
             <h2 id="konusanKarakter"></h2>
             <p id="kimSeokjinIkonikSoz">Hikaye başlıyor...</p>
-            <div>
-                <img id="arkaPlan" src="" style="display:none;">
-            </div>
-            <button id="devam-btn">Devam Et (Tıkla)</button>
-    </div>
+            <button id="devamEtButonu">Devam Et (Tıkla)</button>
+        </div>
     `;
 
-    document.getElementById('devam-btn').addEventListener('click', diyalogIlerlet);
-
-    diyalogIlerlet();
+    document.getElementById('devamEtButonu').addEventListener('click', kimSeokjinBolum1);
+    kimSeokjinBolum1();
 });
 
-function diyalogIlerlet() {
-    if (diyalogSirasi < kimSeokjinBolum1.length) {
-        let suAnKiSahne = kimSeokjinBolum1[diyalogSirasi];
+function kimSeokjinBolum1() {
+    if (diyalogSirasi < kimSeokjinBolum1Metinleri.length) {
+        let suAnKiSahne = kimSeokjinBolum1Metinleri[diyalogSirasi];
+        
+        anaSayfa.classList.add('sahne-gecis');
 
-        document.getElementById('konusanKarakter').innerText = suAnKiSahne.karakter;
-        document.getElementById('kimSeokjinIkonikSoz').innerText = suAnKiSahne.metin;
+        setTimeout(() => {
+            anaSayfa.style.backgroundImage = "none"; 
+            anaSayfa.style.backgroundColor = "black";
 
-        if(suAnKiSahne.arkaPlan) {
-            // Body yerine doğrudan container'a (anaSayfa) uyguluyoruz
-            anaSayfa.style.backgroundImage = suAnKiSahne.arkaPlan;
-            anaSayfa.style.backgroundSize = "cover";
-            anaSayfa.style.backgroundPosition = "center";
-            anaSayfa.style.backgroundRepeat = "no-repeat";
-            console.log("Arka plan değişti:", suAnKiSahne.arkaPlan);
-        }
+            document.getElementById('konusanKarakter').innerText = suAnKiSahne.karakter;
+            anaSayfa.setAttribute('id-sahne', suAnKiSahne.id);
+
+            if (suAnKiSahne.metin && suAnKiSahne.metin !== "") {
+                daktiloYazKelime('kimSeokjinIkonikSoz', suAnKiSahne.metin, 150); 
+            } else {
+                document.getElementById('kimSeokjinIkonikSoz').textContent = "";
+                let buton = document.getElementById('devamEtButonu');
+                if(buton) buton.style.visibility = "visible";
+            }
+
+            if(suAnKiSahne.arkaPlan) {
+                anaSayfa.style.backgroundImage = suAnKiSahne.arkaPlan;
+                anaSayfa.style.backgroundSize = "cover";
+                anaSayfa.style.backgroundPosition = "center";
+            }
+
+            anaSayfa.classList.remove('sahne-gecis');
+            
+        }, 500);
 
         diyalogSirasi++;
-    } else {
-        
     }
+}
+
+let daktiloZamanlayici;
+
+function daktiloYazKelime(elementId, metin, hiz) {
+    let kelimeler = metin.split(" "); //
+    let i = 0;
+    let element = document.getElementById(elementId);
+    let buton = document.getElementById('devamEtButonu');
+    
+    element.textContent = ""; 
+    if(buton) buton.style.visibility = "hidden";
+    
+    clearInterval(daktiloZamanlayici);
+
+    daktiloZamanlayici = setInterval(() => {
+        if (i < kelimeler.length) {
+            element.textContent += (i === 0 ? "" : " ") + kelimeler[i];
+            i++;
+        } else {
+            clearInterval(daktiloZamanlayici);
+            if(buton) buton.style.visibility = "visible";
+        }
+    }, hiz);
 }
